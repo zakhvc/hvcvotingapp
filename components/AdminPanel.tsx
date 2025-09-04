@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import { Startup } from '../types';
-import Button from './ui/Button';
-import EditStartupModal from './EditStartupModal';
+import { Startup } from '../types.ts';
+import Button from './ui/Button.tsx';
+import EditStartupModal from './EditStartupModal.tsx';
 
 interface AdminPanelProps {
   startups: Startup[];

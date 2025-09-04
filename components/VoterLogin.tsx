@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import Input from './ui/Input';
-import Button from './ui/Button';
+import Input from './ui/Input.tsx';
+import Button from './ui/Button.tsx';
 
 interface VoterLoginProps {
   onLogin: (name: string) => void;

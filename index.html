@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
   <head>
@@ -23,7 +24,7 @@
         },
       }
     </script>
-    <!-- Corrected Import Map: Removed conflicting React 19 entries -->
+    <!-- Corrected Import Map: Removed all conflicting and unnecessary entries -->
     <script type="importmap">
 {
   "imports": {
@@ -39,7 +40,7 @@
   </head>
   <body>
     <div id="root"></div>
-    <!-- Corrected Script Tag: Added data-type="module" to fix the import error -->
+    <!-- Corrected Script Tag: Ensures Babel outputs a module -->
     <script type="text/babel" data-type="module" data-presets="react,typescript">
       // The entire application is bundled into this single script tag
       // to avoid MIME type errors when hosting on GitHub Pages.

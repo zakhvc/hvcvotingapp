@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { Startup } from '../types';
-import Modal from './ui/Modal';
-import Input from './ui/Input';
-import Button from './ui/Button';
+import { Startup } from '../types.ts';
+import Modal from './ui/Modal.tsx';
+import Input from './ui/Input.tsx';
+import Button from './ui/Button.tsx';
 
 interface EditStartupModalProps {
   startup?: Startup; // If undefined, it's in "add" mode

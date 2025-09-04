@@ -1,6 +1,6 @@
 import React, { useMemo, useState } from 'react';
-import { Ballot, VoteCategory, Startup } from '../types';
-import Button from './ui/Button';
+import { Ballot, VoteCategory, Startup } from '../types.ts';
+import Button from './ui/Button.tsx';
 
 interface ResultsPageProps {
   ballots: Ballot[];

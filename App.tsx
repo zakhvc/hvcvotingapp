@@ -1,15 +1,15 @@
 import React, { useState, useEffect } from 'react';
 
-import VoterLogin from './components/VoterLogin';
-import VotingSystem from './components/VotingSystem';
-import ResultsPage from './components/ResultsPage';
-import AdminPanel from './components/AdminPanel';
-import { Ballot, Startup } from './types';
-import { ADMIN_PASSWORD } from './constants';
-import Modal from './components/ui/Modal';
-import Input from './components/ui/Input';
-import Button from './components/ui/Button';
-import { supabase } from './supabaseClient';
+import VoterLogin from './components/VoterLogin.tsx';
+import VotingSystem from './components/VotingSystem.tsx';
+import ResultsPage from './components/ResultsPage.tsx';
+import AdminPanel from './components/AdminPanel.tsx';
+import { Ballot, Startup } from './types.ts';
+import { ADMIN_PASSWORD } from './constants.ts';
+import Modal from './components/ui/Modal.tsx';
+import Input from './components/ui/Input.tsx';
+import Button from './components/ui/Button.tsx';
+import { supabase } from './supabaseClient.ts';
 
 enum View {
   Loading,

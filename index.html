@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
   <head>
@@ -23,13 +24,15 @@
         },
       }
     </script>
-    <!-- Import Map: keep versions consistent and simple -->
+    <!-- Corrected Import Map: Removed all conflicting and unnecessary entries -->
     <script type="importmap">
 {
   "imports": {
     "react": "https://esm.sh/react@18.2.0",
     "react-dom/client": "https://esm.sh/react-dom@18.2.0/client",
-    "@supabase/supabase-js": "https://esm.sh/@supabase/supabase-js@2"
+    "@supabase/supabase-js": "https://esm.sh/@supabase/supabase-js@2",
+    "react-dom/": "https://aistudiocdn.com/react-dom@^19.1.1/",
+    "react/": "https://aistudiocdn.com/react@^19.1.1/"
   }
 }
 </script>
@@ -37,7 +40,7 @@
   </head>
   <body>
     <div id="root"></div>
-    <!-- Ensure Babel outputs a module -->
+    <!-- Corrected Script Tag: Ensures Babel outputs a module -->
     <script type="text/babel" data-type="module" data-presets="react,typescript">
       // The entire application is bundled into this single script tag
       // to avoid MIME type errors when hosting on GitHub Pages.
@@ -55,15 +58,11 @@
         deckUrl?: string;
       }
 
-      // IMPORTANT: Replace TS enum with a runtime-safe object.
-      // Babel's TypeScript preset in the browser does not emit runtime code for enums,
-      // which caused `ReferenceError: VoteCategory is not defined`.
-      export const VoteCategory = Object.freeze({
-        DemoDay: 'DEMO_DAY',
-        PrivatePitch: 'PRIVATE_PITCH',
-        None: 'NONE',
-      } as const);
-      type VoteCategory = typeof VoteCategory[keyof typeof VoteCategory];
+      enum VoteCategory {
+        DemoDay = 'DEMO_DAY',
+        PrivatePitch = 'PRIVATE_PITCH',
+        None = 'NONE',
+      }
 
       type Selections = Record<string, VoteCategory>;
 
@@ -101,7 +100,7 @@
       const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
       // --- FROM components/ui/Button.tsx ---
-      const Button = ({ children, className = '', variant = 'primary', ...props }) => {
+      const Button = ({ children, className, variant = 'primary', ...props }) => {
         const baseClasses = 'px-6 py-2 rounded-lg font-semibold text-white transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2';
         const variantClasses = {
           primary: 'bg-secondary hover:bg-opacity-90 focus:ring-secondary disabled:bg-gray-400 disabled:cursor-not-allowed',
@@ -119,7 +118,7 @@
       };
 
       // --- FROM components/ui/Input.tsx ---
-      const Input = ({ className = '', ...props }) => {
+      const Input = ({ className, ...props }) => {
         return (
           <input
             className={`w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-colors duration-300 ${className}`}
@@ -137,7 +136,7 @@
               <div className="p-6 border-b border-gray-200">
                 <div className="flex justify-between items-center">
                   <h3 className="text-xl font-semibold text-gray-800">{title}</h3>
-                  <button onClick={onClose} className="text-gray-400 hover:text-gray-600" aria-label="Close modal">
+                  <button onClick={onClose} className="text-gray-400 hover:text-gray-600">
                     <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                     </svg>
@@ -194,15 +193,15 @@
       
       // --- FROM components/EditStartupModal.tsx ---
       const EditStartupModal = ({ startup, onClose, onSave }) => {
-        const [formData, setFormData] = useState<any>({});
+        const [formData, setFormData] = useState({});
         const isEditMode = !!startup;
         useEffect(() => { setFormData(startup || { name: '', website: '', founderLinkedIn: '', deckUrl: '' }); }, [startup]);
         const handleChange = (e) => { const { name, value } = e.target; setFormData(prev => ({ ...prev, [name]: value })); };
         const handleSubmit = (e) => {
           e.preventDefault();
           if (!formData.name || formData.name.trim() === '') { alert('Startup name is required.'); return; }
-          const processedData: any = { ...formData };
-          const urlFields = ['website', 'founderLinkedIn', 'deckUrl'] as const;
+          const processedData = { ...formData };
+          const urlFields = ['website', 'founderLinkedIn', 'deckUrl'];
           urlFields.forEach(field => {
             const url = processedData[field];
             if (url && typeof url === 'string' && url.trim() !== '') {
@@ -313,7 +312,7 @@
       // --- FROM components/ResultsPage.tsx ---
       const ResultsPage = ({ ballots, onBack, startups }) => {
         const results = useMemo(() => {
-          const demoDayVotes: Record<string, {count: number; voters: string[]}> = {}; const privatePitchVotes: Record<string, {count: number; voters: string[]}> = {};
+          const demoDayVotes = {}; const privatePitchVotes = {};
           for (const ballot of ballots) {
             for (const startupId in ballot.selections) {
               const category = ballot.selections[startupId];
@@ -330,7 +329,7 @@
           const sortedPrivatePitch = Object.entries(privatePitchVotes).sort(([, a], [, b]) => b.count - a.count);
           return { sortedDemoDay, sortedPrivatePitch };
         }, [ballots]);
-        const startupNameMap = startups.reduce((acc, s) => { acc[s.id.toString()] = s.name; return acc; }, {} as Record<string, string>);
+        const startupNameMap = startups.reduce((acc, s) => { acc[s.id.toString()] = s.name; return acc; }, {});
         const ResultList = ({ title, data, color }) => {
           const [expandedItems, setExpandedItems] = useState(new Set());
           const toggleExpansion = (startupId) => {
@@ -370,27 +369,27 @@
 
       // --- FROM components/VotingSystem.tsx ---
       const VotingSystem = ({ voterName, onSubmit, startups, onAdminAction }) => {
-        const [selections, setSelections] = useState<Selections>(() => startups.reduce((acc, s) => ({ ...acc, [s.id]: VoteCategory.None }), {} as Selections));
+        const [selections, setSelections] = useState(() => startups.reduce((acc, s) => ({ ...acc, [s.id]: VoteCategory.None }), {}));
         const counts = useMemo(() => {
           return Object.values(selections).reduce((acc, category) => {
             if (category === VoteCategory.DemoDay) acc.demoDay++; if (category === VoteCategory.PrivatePitch) acc.privatePitch++; return acc;
           }, { demoDay: 0, privatePitch: 0 });
         }, [selections]);
-        const handleSelect = (startupId, category: VoteCategory) => {
+        const handleSelect = (startupId, category) => {
           const currentSelection = selections[startupId];
           if (currentSelection === category) { setSelections(prev => ({ ...prev, [startupId]: VoteCategory.None })); return; }
           if (category === VoteCategory.DemoDay && counts.demoDay >= DEMO_DAY_TARGET) { alert(`You can only select ${DEMO_DAY_TARGET} startups for Demo Day.`); return; }
           if (category === VoteCategory.PrivatePitch && counts.privatePitch >= PRIVATE_PITCH_TARGET) { alert(`You can only select ${PRIVATE_PITCH_TARGET} startups for Private Pitch.`); return; }
           setSelections(prev => ({ ...prev, [startupId]: category }));
         };
-        const isCategoryFull = (category: VoteCategory) => {
+        const isCategoryFull = (category) => {
           if (category === VoteCategory.DemoDay) return counts.demoDay >= DEMO_DAY_TARGET;
           if (category === VoteCategory.PrivatePitch) return counts.privatePitch >= PRIVATE_PITCH_TARGET;
           return false;
         };
         const isSubmissionValid = counts.demoDay === DEMO_DAY_TARGET && counts.privatePitch === PRIVATE_PITCH_TARGET;
         const handleSubmit = () => {
-          if (isSubmissionValid) { const ballot: Ballot = { voterName, voterNameLower: voterName.toLowerCase(), selections, timestamp: Date.now() }; onSubmit(ballot); } 
+          if (isSubmissionValid) { const ballot = { voterName, voterNameLower: voterName.toLowerCase(), selections, timestamp: Date.now() }; onSubmit(ballot); } 
           else { alert("Please ensure you have selected exactly 15 for Demo Day and 20 for Private Pitch."); }
         };
         const ProgressBar = ({count, target, color, name}) => (
@@ -422,14 +421,14 @@
 
       // --- FROM App.tsx ---
       const App = () => {
-        const [voterName, setVoterName] = useState<string | null>(null);
+        const [voterName, setVoterName] = useState(null);
         const [currentView, setCurrentView] = useState('Loading');
-        const [ballots, setBallots] = useState<Ballot[]>([]);
-        const [startups, setStartups] = useState<Startup[]>([]);
+        const [ballots, setBallots] = useState([]);
+        const [startups, setStartups] = useState([]);
         const [isPasswordModalOpen, setIsPasswordModalOpen] = useState(false);
         const [password, setPassword] = useState('');
         const [passwordError, setPasswordError] = useState('');
-        const [adminAction, setAdminAction] = useState<string | null>(null);
+        const [adminAction, setAdminAction] = useState(null);
 
         useEffect(() => {
           const fetchData = async () => {
@@ -450,21 +449,21 @@
           fetchData();
         }, []);
         
-        const handleLogin = (name: string) => {
+        const handleLogin = (name) => {
           const trimmedName = name.trim();
           const hasVoted = ballots.some((ballot) => ballot.voterNameLower === trimmedName.toLowerCase());
           if (hasVoted) { alert("This name has already voted."); return; }
           setVoterName(trimmedName);
           setCurrentView('Voting');
         };
-        const handleVoteSubmit = async (ballot: Ballot) => {
+        const handleVoteSubmit = async (ballot) => {
           try {
             const { data, error } = await supabase.from('ballots').insert([ballot]).select();
             if (error) throw error;
             if (data) { setBallots(prevBallots => [...prevBallots, data[0]]); setCurrentView('ThankYou'); }
           } catch (error) { console.error('Error submitting vote:', error); alert('There was an error submitting your vote. Please try again.'); }
         };
-        const handleOpenPasswordModal = (action: 'results' | 'admin') => {
+        const handleOpenPasswordModal = (action) => {
           setAdminAction(action); setIsPasswordModalOpen(true); setPasswordError(''); setPassword('');
         };
         const handlePasswordCheck = () => {
@@ -473,32 +472,32 @@
             setIsPasswordModalOpen(false); setAdminAction(null);
           } else { setPasswordError('Incorrect password. Please try again.'); }
         };
-        const handleUpdateStartup = async (updatedStartup: Startup) => {
+        const handleUpdateStartup = async (updatedStartup) => {
           try {
             const { data, error } = await supabase.from('startups').update(updatedStartup).eq('id', updatedStartup.id).select();
             if (error) throw error;
             if (data) { setStartups(prevStartups => prevStartups.map(s => s.id === updatedStartup.id ? data[0] : s)); }
           } catch (error) { console.error('Error updating startup:', error); alert('Failed to update startup. Please try again.'); }
         };
-        const handleAddStartup = async (newStartupData: Omit<Startup, 'id'> & Partial<Startup>) => {
+        const handleAddStartup = async (newStartupData) => {
           try {
             const { data, error } = await supabase.from('startups').insert(newStartupData).select();
             if (error) throw error;
             if (data) { setStartups(prevStartups => [...prevStartups, data[0]]); }
           } catch (error) { console.error('Error adding startup:', error); alert('Failed to add startup. Please try again.'); }
         };
-        const handleDeleteStartup = async (startupId: string) => {
+        const handleDeleteStartup = async (startupId) => {
           try {
             const { error } = await supabase.from('startups').delete().eq('id', startupId);
             if (error) throw error;
             setStartups(prevStartups => prevStartups.filter(s => s.id !== startupId));
             // Also update ballots to remove votes for the deleted startup
             const updatedBallots = ballots.map(ballot => {
-                const newSelections = { ...ballot.selections } as Selections;
+                const newSelections = { ...ballot.selections };
                 if (startupId in newSelections) {
                     delete newSelections[startupId];
                 }
-                return { ...ballot, selections: newSelections } as Ballot;
+                return { ...ballot, selections: newSelections };
             });
             setBallots(updatedBallots);
           } catch (error) { console.error('Error deleting startup:', error); alert('Failed to delete startup. Please try again.'); }
@@ -507,7 +506,7 @@
           switch (currentView) {
             case 'Loading': return <div className="flex flex-col items-center justify-center min-h-screen bg-gray-50 text-center p-4"><h1 className="text-2xl font-bold text-primary animate-pulse">Loading Application...</h1></div>;
             case 'Login': return <VoterLogin onLogin={handleLogin} onAdminAction={handleOpenPasswordModal} />;
-            case 'Voting': return <VotingSystem voterName={voterName!} onSubmit={handleVoteSubmit} startups={startups} onAdminAction={handleOpenPasswordModal} />;
+            case 'Voting': return <VotingSystem voterName={voterName} onSubmit={handleVoteSubmit} startups={startups} onAdminAction={handleOpenPasswordModal} />;
             case 'Results': return <ResultsPage ballots={ballots} onBack={() => setCurrentView('Login')} startups={startups} />;
             case 'ThankYou': return <div className="flex flex-col items-center justify-center min-h-screen bg-gray-50 text-center p-4"><h1 className="text-4xl font-bold text-primary mb-4">Thank You!</h1><p className="text-lg text-gray-700">Your vote has been successfully submitted.</p><Button onClick={() => setCurrentView('Login')} className="mt-8">Back to Home</Button></div>;
             case 'Admin': return <AdminPanel startups={startups} onUpdateStartup={handleUpdateStartup} onAddStartup={handleAddStartup} onDeleteStartup={handleDeleteStartup} onBack={() => setCurrentView('Login')} />;
@@ -537,3 +536,5 @@
     </script>
   </body>
 </html>
+
+ReferenceError: VoteCategory is not defined

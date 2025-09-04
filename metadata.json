@@ -1,0 +1,5 @@
+{
+  "name": "Startup Voting Application (Supabase)",
+  "description": "A web application for voters to select startups for Demo Day and Private Pitch rounds, with specific selection rules and a password-protected results page.",
+  "requestFramePermissions": []
+}

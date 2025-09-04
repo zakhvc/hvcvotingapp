@@ -23,6 +23,7 @@
         },
       }
     </script>
+    <!-- Corrected Import Map: Removed conflicting React 19 entries -->
     <script type="importmap">
 {
   "imports": {
@@ -38,7 +39,8 @@
   </head>
   <body>
     <div id="root"></div>
-    <script type="text/babel" data-presets="react,typescript">
+    <!-- Corrected Script Tag: Added data-type="module" to fix the import error -->
+    <script type="text/babel" data-type="module" data-presets="react,typescript">
       // The entire application is bundled into this single script tag
       // to avoid MIME type errors when hosting on GitHub Pages.
       
@@ -488,6 +490,15 @@
             const { error } = await supabase.from('startups').delete().eq('id', startupId);
             if (error) throw error;
             setStartups(prevStartups => prevStartups.filter(s => s.id !== startupId));
+            // Also update ballots to remove votes for the deleted startup
+            const updatedBallots = ballots.map(ballot => {
+                const newSelections = { ...ballot.selections };
+                if (startupId in newSelections) {
+                    delete newSelections[startupId];
+                }
+                return { ...ballot, selections: newSelections };
+            });
+            setBallots(updatedBallots);
           } catch (error) { console.error('Error deleting startup:', error); alert('Failed to delete startup. Please try again.'); }
         };
         const renderView = () => {

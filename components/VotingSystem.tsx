@@ -1,8 +1,8 @@
 import React, { useState, useMemo } from 'react';
-import { Selections, VoteCategory, Ballot, Startup } from '../types';
-import StartupCard from './StartupCard';
-import { DEMO_DAY_TARGET, PRIVATE_PITCH_TARGET } from '../constants';
-import Button from './ui/Button';
+import { Selections, VoteCategory, Ballot, Startup } from '../types.ts';
+import StartupCard from './StartupCard.tsx';
+import { DEMO_DAY_TARGET, PRIVATE_PITCH_TARGET } from '../constants.ts';
+import Button from './ui/Button.tsx';
 
 interface VotingSystemProps {
   voterName: string;
